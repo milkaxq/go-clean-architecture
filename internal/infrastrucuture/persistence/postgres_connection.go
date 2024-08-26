@@ -1,4 +1,4 @@
-package database
+package persistence
 
 import (
 	"booking/internal/domain/repositories"
@@ -11,9 +11,10 @@ import (
 )
 
 type PostgresDB struct {
-	pool    *pgxpool.Pool
 	connStr string
-	logger  *logging.ZapLogger
+
+	logger *logging.ZapLogger
+	pool   *pgxpool.Pool
 }
 
 func NewDBConnection(config *configuration.Configs, logger *logging.ZapLogger) repositories.DBConnection {

@@ -2,8 +2,8 @@ package server
 
 import (
 	"booking/internal/infrastrucuture/configuration"
-	"booking/internal/infrastrucuture/database"
 	"booking/internal/infrastrucuture/logging"
+	"booking/internal/infrastrucuture/persistence"
 	"booking/internal/interfaces/http/controllers"
 	"context"
 	"fmt"
@@ -21,7 +21,7 @@ func StartServer() {
 		})
 	}
 
-	dbConn := database.NewDBConnection(config, logger)
+	dbConn := persistence.NewDBConnection(config, logger)
 
 	err = dbConn.Connect(context.Background())
 	if err != nil {
