@@ -5,6 +5,9 @@ import (
 	"booking/internal/infrastrucuture/database"
 	"booking/internal/infrastrucuture/logging"
 	"context"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -25,4 +28,10 @@ func main() {
 		})
 	}
 
+	r := gin.Default()
+	r.SetTrustedProxies(nil)
+	r.GET("/health-check", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{})
+	})
+	r.Run()
 }
