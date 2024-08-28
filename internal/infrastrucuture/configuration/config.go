@@ -20,4 +20,8 @@ type Configs struct {
 		Host     string `mapstructure:"host"`
 		Port     int    `mapstructure:"port"`
 	}
+	Google struct {
+		Client       string `mapstructure:"client_id"`
+		ClientSecret string `mapstructure:"client_secret"`
+	}
 }
