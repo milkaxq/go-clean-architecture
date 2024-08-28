@@ -7,7 +7,6 @@ import (
 	"booking/internal/interfaces/http/controllers"
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -49,26 +48,34 @@ func (s *Server) StartServer() error {
 	controllers.RegisterRoutes(s.Router)
 
 	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%d", s.Config.Server.Port),
+		Addr:    fmt.Sprintf(":..%d", s.Config.Server.Port),
 		Handler: s.Router.Handler(),
 	}
 
+	s.Logger.Info("Server start running", map[string]interface{}{"server port": srv.Addr})
+
+	errChan := make(chan error, 1)
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			s.Logger.Error("listen: %s\n", map[string]interface{}{
-				"err": err.Error(),
+			s.Logger.Error("Server failed to start", map[string]interface{}{
+				"error": err.Error(),
 			})
+			errChan <- err
 		}
 	}()
 
 	quit := make(chan os.Signal, 1)
 
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
 
-	log.Println("Shutdown Server ...")
+	select {
+	case <-quit:
+		s.Logger.Info("Shutdown Server ...", map[string]interface{}{})
+	case err := <-errChan:
+		return err
+	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
 	if err := srv.Shutdown(ctx); err != nil {
